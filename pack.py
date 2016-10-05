@@ -13,6 +13,7 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 UNIT_NAME_AREA = u"平方米"
 UNIT_NAME_PMFEE = u"元/平方米・月"
+UNIT_NAME_PMFEE2 = u"元/平米・月"
 
 KEY_MAP = OrderedDict([
     (u"日期", "date"),
@@ -59,6 +60,7 @@ def fill_worksheet(workbook, city, prefix_path):
                 value = strip_unit_name(value, UNIT_NAME_AREA)
             elif key == u"PM_fee":
                 value = strip_unit_name(value, UNIT_NAME_PMFEE)
+                value = strip_unit_name(value, UNIT_NAME_PMFEE2)
             worksheet.write(idx + 1, idx_col, value)
             column_widths[idx_col] = max(column_widths[idx_col],
                                          visual_length(value))

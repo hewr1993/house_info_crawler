@@ -96,7 +96,7 @@ headers = {
     "Content-Type": "application/x-www-form-urlencoded"
 }
 
-def get_page(url, sleep_time=0.5, timeout_secs=10,
+def get_page(url, sleep_time=0.2, timeout_secs=10,
              use_cache=not args.no_web_cache):
     cache_filename = os.path.join(CACHE_DIR,
                                   "%s.json" % hashlib.md5(url).hexdigest())
@@ -109,8 +109,8 @@ def get_page(url, sleep_time=0.5, timeout_secs=10,
             try:
                 obj = browser.get(url, timeout=timeout_secs)
                 break
-            except requests.exceptions.ReadTimeout:
-                pass
+            except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
+                logger.warn("retry %s" % url)
         #obj.encoding = obj.apparent_encoding
         obj.encoding = "GB2312"  # XXX hard code for this weird website
         time.sleep(sleep_time)
