@@ -94,7 +94,8 @@ headers = {
     "Content-Type": "application/x-www-form-urlencoded"
 }
 
-def get_page(url, sleep_time=0.5, use_cache=not args.no_web_cache):
+def get_page(url, sleep_time=0.5, timeout_secs=10,
+             use_cache=not args.no_web_cache):
     cache_filename = os.path.join(CACHE_DIR,
                                   "%s.json" % hashlib.md5(url).hexdigest())
     logger.info("visit %s" % url)
@@ -102,7 +103,12 @@ def get_page(url, sleep_time=0.5, use_cache=not args.no_web_cache):
         logger.info("load from file %s" % cache_filename)
         return json.load(open(cache_filename))["content"]
     else:
-        obj = browser.get(url)
+        while True:
+            try:
+                obj = browser.get(url, timeout=timeout_secs)
+                break
+            except requests.exceptions.ReadTimeout:
+                pass
         #obj.encoding = obj.apparent_encoding
         obj.encoding = "GB2312"  # XXX hard code for this weird website
         time.sleep(sleep_time)

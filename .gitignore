@@ -92,3 +92,4 @@ ENV/
 data
 log.txt
 *_urls.txt
+*.xls?
