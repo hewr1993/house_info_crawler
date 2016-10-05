@@ -175,6 +175,12 @@ def process_house_info(url):
         return info
 
     def process_styles(soup):
+        def strip_value_developer(s):
+            tmpl = u"[房企申请入驻]"
+            if s[-len(tmpl):] == tmpl:
+                s = s[:-len(tmpl)]
+            return s
+
         _logs = []
         for style in range(1, 3):
             try:
@@ -185,6 +191,7 @@ def process_house_info(url):
             except AttributeError:
                 _logs.append(traceback.format_exc())
                 continue
+            info["developer"] = strip_value_developer(info["developer"])
             return (info, style)
         for _log in _logs:
             logger.debug(_log)
