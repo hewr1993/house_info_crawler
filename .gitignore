@@ -87,3 +87,8 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# data files
+data
+log.txt
+*_urls.txt
