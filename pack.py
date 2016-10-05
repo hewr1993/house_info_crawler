@@ -7,6 +7,7 @@ import glob
 import json
 import xlsxwriter
 from collections import OrderedDict
+from crawl import get_city_list
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -21,6 +22,7 @@ KEY_MAP = OrderedDict([
     (u"物业管理公司", "PM"),
     (u"面积(%s)" % UNIT_NAME_AREA, "area"),
     (u"物业费(%s)" % UNIT_NAME_PMFEE, "PM_fee"),
+    (u"原网页", "url"),
 ])
 
 
@@ -40,7 +42,7 @@ def strip_unit_name(value, unit_name):
 
 def fill_worksheet(workbook, city, prefix_path):
     bold = workbook.add_format({'bold': True})
-    worksheet = workbook.add_worksheet(city.decode("utf8"))
+    worksheet = workbook.add_worksheet(city)
     column_widths = [0] * len(KEY_MAP)
     # set titles
     for idx_col, title in enumerate(KEY_MAP):
@@ -67,8 +69,8 @@ def fill_worksheet(workbook, city, prefix_path):
 
 if __name__ == "__main__":
     workbook = xlsxwriter.Workbook(os.path.join(BASE_DIR, 'houses.xlsx'))
-    for path in glob.glob(os.path.join(BASE_DIR, "data/*")):
-        city = os.path.basename(path)
+    for city in get_city_list():
+        path = os.path.join(BASE_DIR, "data", city)
         fill_worksheet(workbook, city, path)
     workbook.close()
 

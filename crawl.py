@@ -10,6 +10,7 @@ import traceback
 import urlparse
 import requests
 from bs4 import BeautifulSoup
+from collections import OrderedDict
 
 import argparse
 parser = argparse.ArgumentParser()
@@ -38,6 +39,7 @@ logging.addLevelName(logging.WARNING, "\033[1;31m%s\033[1;0m" % logging.getLevel
 logging.addLevelName(logging.ERROR, "\033[1;41m%s\033[1;0m" % logging.getLevelName(logging.ERROR))
 
 GLOBAL_SETTINGS = {
+    "url": "",
     "city": "",
     "date": "",
     "house": "",
@@ -189,6 +191,7 @@ def process_house_info(url):
         return (None, -1)
 
     # parse info
+    GLOBAL_SETTINGS["url"] = url
     soup = BeautifulSoup(get_page(url))
     info, style = process_styles(soup)
     if info is None:
@@ -222,10 +225,14 @@ def process_house(url):
 
 
 def process_city(url):
-    def get_housing_url(url):
+    def get_house_url(url):
         idx = url.find(":")
-        return url[:idx + 3] + "newhouse." + url[idx + 3:] +\
-            "house/saledate/201601.htm"
+        if url[idx + 3:idx + 6] == "bj.":
+            # special case for beijing
+            prefix = "http://newhouse.fang.com"
+        else:
+            prefix = url[:idx + 3] + "newhouse." + url[idx + 3:]
+        return urlparse.urljoin(prefix, "house/saledate/201601.htm")
 
     def get_housing_date_url(url, month):
         arr = url.split(".")
@@ -256,7 +263,7 @@ def process_city(url):
         else:
             return None
 
-    base_url = get_housing_url(url)
+    base_url = get_house_url(url)
     for month in range(1, 10):
         logger.info("month %d" % month)
         GLOBAL_SETTINGS["date"] = "2016%02d" % month
@@ -270,11 +277,12 @@ def process_city(url):
 
 
 def process_cities(cities):
-    urls = {}
+    urls = []
     soup = BeautifulSoup(get_page("http://fang.com/SoufunFamily.htm"))
     for item in soup.find_all('a'):
         if item.text in cities:
-            urls[item.text] = item["href"]
+            urls.append((item.text, item["href"]))
+    urls = OrderedDict(urls)
     for city, url in urls.items():
         logger.info("city %s" % city)
         GLOBAL_SETTINGS["city"] = city
