@@ -42,12 +42,13 @@ def strip_unit_name(value, unit_name):
 
 
 def fill_worksheet(workbook, city, prefix_path):
-    bold = workbook.add_format({'bold': True})
+    format_title = workbook.add_format({'bold': True, 'border': 1})
+    format_content = workbook.add_format({'border': 1})
     worksheet = workbook.add_worksheet(city)
     column_widths = [0] * len(KEY_MAP)
     # set titles
     for idx_col, title in enumerate(KEY_MAP):
-        worksheet.write(0, idx_col, title, bold)
+        worksheet.write(0, idx_col, title, format_title)
         column_widths[idx_col] = max(column_widths[idx_col],
                                      visual_length(title))
     # fill content
@@ -61,7 +62,7 @@ def fill_worksheet(workbook, city, prefix_path):
             elif key == u"PM_fee":
                 value = strip_unit_name(value, UNIT_NAME_PMFEE)
                 value = strip_unit_name(value, UNIT_NAME_PMFEE2)
-            worksheet.write(idx + 1, idx_col, value)
+            worksheet.write(idx + 1, idx_col, value, format_content)
             column_widths[idx_col] = max(column_widths[idx_col],
                                          visual_length(value))
     # set column widths
